@@ -8,40 +8,23 @@ use feature 'say';
 
 my $request = qr{
     ^
-    # <debug: step>
     <statement>
+    $
 
     <rule: statement>
-        <cap_command>
+        <command= (cap)>
+        <[arguments=capabilities]>+
         |
-        <list_command>
+        <command= (list)>
         |
-        <config_command>
+        <command= (config)> <arguments=plugin>
         |
-        <fetch_command>
+        <command= (fetch)> <arguments=plugin>
         |
-        <spoolfetch_command>
-
-    <rule: cap_command>
-        cap
-        <[capabilities]>+
-
-    <rule: list_command>
-        list
-
-    <rule: config_command>
-        config <plugin>
-
-    <rule: fetch_command>
-        fetch <plugin>
-
-    <rule: spoolfetch_command>
-        spoolfetch <timestamp>
+        <command= (spoolfetch)> <argument=timestamp>
 
     <rule: capabilities>
-        <MATCH=capability>
-        |
-        <.ws>
+        <.ws>?
         <MATCH=capability>
 
     <token: capability>
@@ -52,9 +35,6 @@ my $request = qr{
 
     <token: timestamp>
         \d+
-
-    <token: delimiter>
-        \s+
 };
 
 use Data::Dumper;
