@@ -4,28 +4,23 @@ use strict;
 use warnings;
 use Regexp::Grammars;
 use IO::Prompter;
-use feature 'say';
 
 my $request = qr{
-    ^
-    <statement>
-    $
+    \A
+    <.ws>? <statement> <.ws>?
+    \Z
 
     <rule: statement>
         <command= (cap)>
-        <[arguments=capabilities]>+
+        <[capabilities=capability]>+ % <.ws>
         |
         <command= (list)>
         |
-        <command= (config)> <arguments=plugin>
+        <command= (config)> <plugin>
         |
-        <command= (fetch)> <arguments=plugin>
+        <command= (fetch)> <plugin>
         |
-        <command= (spoolfetch)> <argument=timestamp>
-
-    <rule: capabilities>
-        <.ws>?
-        <MATCH=capability>
+        <command= (spoolfetch)> <timestamp>
 
     <token: capability>
         [[:alpha:]]+
@@ -35,14 +30,12 @@ my $request = qr{
 
     <token: timestamp>
         \d+
-};
+}xms;
 
 use Data::Dumper;
 
 PROMPT:
 while (prompt 'munin> ') {
-    if ($_ eq '') {
-        next PROMPT
-    }
+    next PROMPT if $_ eq '';
     $_ =~ $request && print Dumper $/{statement};
 }
