@@ -4,15 +4,15 @@ use strict;
 use warnings;
 use Regexp::Grammars;
 use IO::Prompter;
+use Data::Printer;
 
 my $request = qr{
     \A
-    <.ws>? <statement> <.ws>?
+    <statement>
     \Z
 
     <rule: statement>
-        <command= (cap)>
-        <[capabilities=capability]>+ % <.ws>
+        <command= (cap)> <capabilities>
         |
         <command= (list)>
         |
@@ -21,6 +21,9 @@ my $request = qr{
         <command= (fetch)> <plugin>
         |
         <command= (spoolfetch)> <timestamp>
+
+    <rule: capabilities>
+        <[MATCH=capability]>* % <.ws>
 
     <token: capability>
         [[:alpha:]]+
@@ -32,10 +35,8 @@ my $request = qr{
         \d+
 }xms;
 
-use Data::Dumper;
-
 PROMPT:
 while (prompt 'munin> ') {
     next PROMPT if $_ eq '';
-    $_ =~ $request && print Dumper $/{statement};
+    $_ =~ $request && p %/;
 }
