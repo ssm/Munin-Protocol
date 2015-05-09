@@ -3,11 +3,15 @@
 use strict;
 use warnings;
 use Regexp::Grammars;
+use IO::Prompter;
+use feature 'say';
 
 my $request = qr{
-    <command>
+    ^
+    # <debug: step>
+    <statement>
 
-    <rule: command>
+    <rule: statement>
         <cap_command>
         |
         <list_command>
@@ -20,9 +24,7 @@ my $request = qr{
 
     <rule: cap_command>
         cap
-        <debug: step>
         <[capabilities]>+
-        <debug: off>
 
     <rule: list_command>
         list
@@ -55,21 +57,12 @@ my $request = qr{
         \s+
 };
 
-
-my @commands = (
-    'cap dirtyconfig',
-    'cap dirtyconfig multigraph spoolfetch',
-    'list',
-    'config foo',
-    'fetch foo',
-);
-
-
 use Data::Dumper;
 
-foreach my $command (@commands) {
-    $command =~ $request;
-
-    print Dumper $/{command};
-
+PROMPT:
+while (prompt 'munin> ') {
+    if ($_ eq '') {
+        next PROMPT
+    }
+    $_ =~ $request && print Dumper $/{statement};
 }
