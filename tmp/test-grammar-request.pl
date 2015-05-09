@@ -5,59 +5,59 @@ use warnings;
 use Regexp::Grammars;
 
 my $request = qr{
-  <debug: step>
-  <command>
-  <debug: off>
+    <command>
 
-<rule: command>
-  <cap_command>
-  |
-  <list_command>
-  |
-  <config_command>
-  |
-  <fetch_command>
-  |
-  <spoolfetch_command>
+    <rule: command>
+        <cap_command>
+        |
+        <list_command>
+        |
+        <config_command>
+        |
+        <fetch_command>
+        |
+        <spoolfetch_command>
 
-<rule: cap_command>
-  cap
-  <[capabilities]>
+    <rule: cap_command>
+        cap
+        <debug: step>
+        <[capabilities]>+
+        <debug: off>
 
-<rule: list_command>
-  list
+    <rule: list_command>
+        list
 
-<rule: config_command>
-  config <plugin>
+    <rule: config_command>
+        config <plugin>
 
-<rule: fetch_command>
-  fetch <plugin>
+    <rule: fetch_command>
+        fetch <plugin>
 
-<rule: spoolfetch_command>
-  spoolfetch <timestamp>
+    <rule: spoolfetch_command>
+        spoolfetch <timestamp>
 
-<rule: capabilities>
-  <capability>
-  (?:
-    <.ws>
-    <capability>
-  )*
+    <rule: capabilities>
+        <MATCH=capability>
+        |
+        <.ws>
+        <MATCH=capability>
 
-<token: capability>
-  [[:alpha:]]+
+    <token: capability>
+        [[:alpha:]]+
 
-<token: plugin>
-  [[:alpha:]]+
+    <token: plugin>
+        [[:alpha:]]+
 
-<token: timestamp>
-  \d+
+    <token: timestamp>
+        \d+
 
+    <token: delimiter>
+        \s+
 };
 
 
 my @commands = (
     'cap dirtyconfig',
-    'cap spoolfetch',
     'cap dirtyconfig multigraph spoolfetch',
     'list',
     'config foo',
@@ -65,6 +65,11 @@ my @commands = (
 );
 
 
+use Data::Dumper;
+
 foreach my $command (@commands) {
     $command =~ $request;
+
+    print Dumper $/{command};
+
 }
