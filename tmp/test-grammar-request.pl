@@ -58,14 +58,20 @@ sub parse_request {
         my $statement = $/{statement}->{''};
 
         return (
-            BOOL {1}
-            LIST {%/}
-            SCALAR {$statement}
-            HASHREF {{command => $command, arguments => $arguments, statement => $statement}}
+            BOOL   { 1 }
+            LIST   { %/ }
+            SCALAR { $statement }
+            HASHREF {
+                {
+                    command   => $command,
+                    arguments => $arguments,
+                    statement => $statement
+                }
+            }
         );
     }
     else {
-        return ( BOOL {0} );
+        return ( BOOL { 0 } );
     }
 }
 
