@@ -20,7 +20,10 @@ sub new {
     $self->_build_response_fetch;
 
     $self->{state}->{request}      = '';
+    $self->{state}->{response}     = '';
     $self->{state}->{capabilities} = [];
+    $self->{state}->{node}         = '';
+    $self->{state}->{nodes}        = [];
 
     return $self;
 }
