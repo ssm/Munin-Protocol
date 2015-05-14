@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use Regexp::Grammars;
 use Contextual::Return;
+use Carp;
 
 sub new {
     my $class = shift;
@@ -24,6 +25,17 @@ sub new {
     $self->{state}->{capabilities} = [];
     $self->{state}->{node}         = '';
     $self->{state}->{nodes}        = [];
+
+    $self->{dispatch} = {
+        banner     => sub { $self->{_parse_response_banner} },
+        cap        => sub { $self->{_parse_response_cap} },
+        nodes      => sub { $self->{_parse_response_nodes} },
+        list       => sub { $self->{_parse_response_list} },
+        config     => sub { $self->{_parse_response_config} },
+        fetch      => sub { $self->{_parse_response_fetch} },
+        spoolfetch => sub { $self->{_parse_response_spoolfetch} },
+        DEFAULT    => sub { confess "Not implemented" },
+    };
 
     return $self;
 }
