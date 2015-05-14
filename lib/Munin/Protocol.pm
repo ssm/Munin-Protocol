@@ -245,7 +245,7 @@ sub _build_response_fetch {
                       U | ^[-+]?\d*\.?\d+([eE][-+]?\d+)?$
 
               }smx;
-    $self->{response}->{fetch} = $fetch;
+    $self->{grammar}->{response}->{fetch} = $fetch;
     return $self;
 }
 
