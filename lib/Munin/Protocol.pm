@@ -64,7 +64,8 @@ sub _build_request {
 
     <rule: statement>
         <command= (cap)> <arguments=capabilities>
-      | <command= (list)>
+      | <command= (list)> <[arguments=hostname]>?
+      | <command= (nodes)>
       | <command= (quit)>
       | <command= (help)>
       | <command= (config)> <arguments=plugin>
@@ -79,6 +80,9 @@ sub _build_request {
 
     <token: plugin>
         [[:alpha:]]+
+
+    <token: hostname>
+        \S+
 
     <token: timestamp>
         \d+
