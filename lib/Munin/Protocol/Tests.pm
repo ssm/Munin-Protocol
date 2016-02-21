@@ -47,17 +47,6 @@ sub object_methods : Test(1) {
     can_ok( $p, qw(parse_request parse_response) );
 }
 
-sub object_private_methods : Test(1) {
-    my $p = shift->{protocol};
-
-    can_ok(
-        $p, qw{ _parse_response_banner _parse_response_cap
-            _parse_response_nodes _parse_response_list
-            _parse_response_config _parse_response_fetch
-            _parse_response_spoolfetch }
-    );
-}
-
 sub object_dispatch : Test(9) {
     my $p = shift->{protocol};
     my $d = $p->{dispatch};
