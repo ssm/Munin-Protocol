@@ -1,5 +1,16 @@
 #!/usr/bin/perl
 
+# A test script for interaction with the Munin::Protocol parser.
+
+# Currently limited to parsing requests from master to node, and emits
+# a "parse error", or responding the parsed line.
+#
+# Todo:
+#
+# Print protocol state
+#
+# Parse requests and responses.
+
 use strict;
 use warnings;
 use Munin::Protocol;
