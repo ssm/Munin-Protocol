@@ -6,7 +6,7 @@ use Test::More;
 use Munin::Protocol;
 
 # setup methods are run before every test method.
-sub class {'Munin::Protocol'}
+sub class { 'Munin::Protocol' }
 
 sub startup : Tests(startup => 1) {
     my $test = shift;
@@ -85,13 +85,15 @@ sub command_list_node : Test(3) {
     my $res = $p->parse_request('list test1.example.com');
 
     ok( $res, 'command: list <hostname>, boolean context' );
-    is( $res,
+    is(
+        $res,
         'list test1.example.com',
         'command: list <hostname>, scalar context'
     );
     is_deeply(
         \%{$res},
-        {   command   => 'list',
+        {
+            command   => 'list',
             arguments => ['test1.example.com'],
             statement => 'list test1.example.com'
         },
@@ -108,7 +110,8 @@ sub command_cap : Test(3) {
     is( $res, 'cap foo bar', 'command: cap <capabilities>, scalar context' );
     is_deeply(
         \%{$res},
-        {   command   => 'cap',
+        {
+            command   => 'cap',
             arguments => [ 'foo', 'bar' ],
             statement => 'cap foo bar'
         },

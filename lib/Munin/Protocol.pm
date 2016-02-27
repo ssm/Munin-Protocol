@@ -204,11 +204,12 @@ sub parse_request {
         my $statement = $/{statement}->{''};
 
         return (
-            BOOL   {1}
-            LIST   {%/}
-            SCALAR {$statement}
+            BOOL   { 1 }
+            LIST   { %/ }
+            SCALAR { $statement }
             HASHREF {
-                {   command   => $command,
+                {
+                    command   => $command,
                     arguments => $arguments,
                     statement => $statement
                 };
@@ -216,7 +217,7 @@ sub parse_request {
         );
     }
     else {
-        return ( BOOL {0} );
+        return ( BOOL { 0 } );
     }
 }
 
