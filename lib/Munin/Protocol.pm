@@ -174,21 +174,22 @@ sub new {
     $self->_build_response_config;
     $self->_build_response_fetch;
 
-    $self->{state}->{request}      = '';
+    $self->{state}->{request}      = 'banner';
     $self->{state}->{response}     = '';
     $self->{state}->{capabilities} = [];
     $self->{state}->{node}         = '';
     $self->{state}->{nodes}        = [];
 
     $self->{dispatch} = {
-        banner     => sub { $self->{_parse_response_banner} },
-        cap        => sub { $self->{_parse_response_cap} },
-        nodes      => sub { $self->{_parse_response_nodes} },
-        list       => sub { $self->{_parse_response_list} },
-        config     => sub { $self->{_parse_response_config} },
-        fetch      => sub { $self->{_parse_response_fetch} },
-        spoolfetch => sub { $self->{_parse_response_spoolfetch} },
-        DEFAULT    => sub { confess "Not implemented" },
+        banner => sub { my $r = shift; $self->_parse_response_banner($r) },
+        cap    => sub { my $r = shift; $self->_parse_response_cap($r) },
+        nodes  => sub { my $r = shift; $self->_parse_response_nodes($r) },
+        list   => sub { my $r = shift; $self->_parse_response_list($r) },
+        config => sub { my $r = shift; $self->_parse_response_config($r) },
+        fetch  => sub { my $r = shift; $self->_parse_response_fetch($r) },
+        spoolfetch =>
+          sub { my $r = shift; $self->_parse_response_spoolfetch($r) },
+        DEFAULT => sub { confess "Not implemented" },
     };
 
     return $self;
@@ -221,8 +222,29 @@ sub parse_request {
     }
 }
 
-
 sub parse_response {
+    my $self     = shift;
+    my $response = shift;
+
+    my $parser = $self->{state}->{request};
+
+    return $self->{dispatch}->{$parser}->($response);
+}
+
+sub _parse_response_banner {
+    my $self    = shift;
+    my $request = shift;
+
+    if ( $request =~ $self->{grammar}->{response}->{banner} ) {
+        my $node = $/{banner}->{node};
+
+        $self->{state}->{node} = $node;
+
+        return ( BOOL { 1 } SCALAR { $node } );
+    }
+    else {
+        return ( BOOL { 0 } );
+    }
 }
 
 sub _build_request {
@@ -274,12 +296,10 @@ sub _build_response_banner {
          \Z
 
          <rule: banner>
-         \\#
-         munin node at
-         <hostname>
+         [#] munin node at <node>
 
-         <rule: hostname>
-         [[:word:]]       # this is a shortcut
+         <rule: node>
+         \S+           # this is a shortcut
     }smx;
 
     $self->{grammar}->{response}->{banner} = $banner;

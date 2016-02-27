@@ -121,8 +121,29 @@ sub command_cap : Test(3) {
 }
 
 ##############################
+# Response parsers
+sub response_banner : Test(6) {
+    my $p = shift->{protocol};
+
+    ok( $p, 'protocol established' );
+    ok( $p->_parse_response_banner("# munin node at test1.example.com"),
+        'banner' );
+    ok( $p->_parse_response_banner("# munin \nnode  at\ttest1.example.com"),
+        'should accept any whitespace' );
+    ok( !$p->_parse_response_banner("munin node at test1.example.com\n"),
+        'should fail with missing #' );
+    ok(
+        !$p->_parse_response_banner(
+            "# munin node at test1.example.com something extra"),
+        'should fail with extra arguments'
+    );
+    ok( !$p->_parse_response_banner("a# munin node at test1.example.com"),
+        'should fail with garbage in front' );
+}
+
+##############################
 # Stateful tests
-sub state : Test(6) {
+sub state : Test(7) {
     my $p = shift->{protocol};
     my $s = $p->{state};
 
@@ -131,11 +152,16 @@ sub state : Test(6) {
     is( $s->{node}, '', 'node name empty' );
     is_deeply( $s->{nodes},        [], 'node list empty' );
     is_deeply( $s->{capabilities}, [], 'capabilities list empty' );
+    is( $s->{request}, 'banner', 'initial paraser is "banner"' );
 
     # receive banner
-    ok( $p->parse_response("# munin node at test1.example.com\n") );
+    ok(
+        $p->parse_response("# munin node at test1.example.com"),
+        'parse_response for banner should return a true value'
+    );
 
     # check state
     is( $s->{node}, 'test1.example.com', 'node name should be set' );
 }
+
 1;
