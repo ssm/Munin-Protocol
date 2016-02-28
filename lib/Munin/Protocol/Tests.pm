@@ -143,7 +143,7 @@ sub response_banner : Test(6) {
 
 ##############################
 # Stateful tests
-sub state : Test(7) {
+sub state : Test(11) {
     my $p = shift->{protocol};
     my $s = $p->{state};
 
@@ -162,6 +162,22 @@ sub state : Test(7) {
 
     # check state
     is( $s->{node}, 'test1.example.com', 'node name should be set' );
+
+    # comand: "nodes"
+    my $nodes_response = <<'EOF';
+foo.example.com
+bar.example.com
+.
+EOF
+    ok( $p->parse_request('nodes'), 'parse request: nodes' );
+    is( $s->{request}, 'nodes', 'check parser state for: nodes' );
+    ok( $p->parse_response($nodes_response),
+        'parse response for: nodes' );
+    is_deeply(
+        $s->{nodes},
+        [ 'foo.example.com', 'bar.example.com' ],
+        'check session state for: nodes'
+    );
 }
 
 1;

@@ -169,6 +169,7 @@ sub new {
 
     $self->_build_request;
     $self->_build_response_banner;
+    $self->_build_response_nodes;
     $self->_build_response_cap;
     $self->_build_response_list;
     $self->_build_response_config;
@@ -203,6 +204,8 @@ sub parse_request {
         my $command   = $/{statement}->{command};
         my $arguments = $/{statement}->{arguments} // [];
         my $statement = $/{statement}->{''};
+
+        $self->{state}->{request} = $command;
 
         return (
             BOOL   { 1 }
@@ -241,6 +244,25 @@ sub _parse_response_banner {
         $self->{state}->{node} = $node;
 
         return ( BOOL { 1 } SCALAR { $node } );
+    }
+    else {
+        return ( BOOL { 0 } );
+    }
+}
+
+sub _parse_response_nodes {
+    my $self    = shift;
+    my $request = shift;
+
+    if ( $request =~ $self->{grammar}->{response}->{nodes} ) {
+        my $nodes = $/{NodeList}->{Node};
+        $self->{state}->{nodes} = $nodes;
+
+        return (
+            BOOL { 1 }
+            SCALAR { join( " ", @{$nodes} ) }
+            LIST { @{$nodes} }
+            );
     }
     else {
         return ( BOOL { 0 } );
@@ -303,6 +325,32 @@ sub _build_response_banner {
     }smx;
 
     $self->{grammar}->{response}->{banner} = $banner;
+    return $self;
+}
+
+sub _build_response_nodes {
+    my $self = shift;
+
+    my $nodes_grammar = qr{
+         <NodeList>
+
+         <rule: NodeList>
+         \A
+         <[Node]>+ % <Separator>
+         <End>
+         \Z
+
+         <rule: Node>
+         (?![.])\S+
+
+         <rule: Separator>
+         \n
+
+         <rule: End>
+         \n[.]\n
+    }smx;
+
+    $self->{grammar}->{response}->{nodes} = $nodes_grammar;
     return $self;
 }
 
