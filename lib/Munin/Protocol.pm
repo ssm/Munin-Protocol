@@ -269,6 +269,26 @@ sub _parse_response_nodes {
     }
 }
 
+
+sub _parse_response_cap {
+    my $self    = shift;
+    my $request = shift;
+
+    if ( $request =~ $self->{grammar}->{response}->{cap} ) {
+        my $capabilities = $/{Capabilities}->{Capability};
+        $self->{state}->{capabilities} = $capabilities;
+
+        return (
+            BOOL { 1 }
+            SCALAR { join( " ", @{$capabilities} ) }
+            LIST { @{$capabilities} }
+            );
+    }
+    else {
+        return ( BOOL { 0 } );
+    }
+}
+
 sub _build_request {
     my $self = shift;
 
@@ -375,16 +395,15 @@ sub _build_response_cap {
     my $self = shift;
 
     my $cap = qr{
-                    \A
-                    cap <capabilities>
-                    \Z
+        <Capabilities>
 
-                    <rule: capabilities>
-                    <[capability]> % <.ws>
+        <rule: Capabilities>
+        cap
+        <[Capability]>+ % <.ws>
 
-                    <token: capability>
-                    [[:alpha:]]+
-            }smx;
+        <token: Capability>
+        [[:alpha:]]+
+    }smx;
     $self->{grammar}->{response}->{cap} = $cap;
     return $self;
 }

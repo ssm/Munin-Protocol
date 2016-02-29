@@ -128,6 +128,7 @@ sub response_banner : Test(6) {
     ok( $p, 'protocol established' );
     ok( $p->_parse_response_banner("# munin node at test1.example.com"),
         'banner' );
+
     ok( $p->_parse_response_banner("# munin \nnode  at\ttest1.example.com"),
         'should accept any whitespace' );
     ok( !$p->_parse_response_banner("munin node at test1.example.com\n"),
@@ -139,6 +140,44 @@ sub response_banner : Test(6) {
     );
     ok( !$p->_parse_response_banner("a# munin node at test1.example.com"),
         'should fail with garbage in front' );
+}
+
+##############################
+# Response parsers
+sub response_nodes : Test(3) {
+    my $p = shift->{protocol};
+
+    my $nodes_response = <<'END_NODES';
+node1.example.com
+node2.example.com
+.
+END_NODES
+
+    ok( $p,                                         'protocol established' );
+    ok( $p->_parse_response_nodes($nodes_response), 'parse nodes' );
+    is_deeply(
+        $p->{state}->{nodes},
+        [ 'node1.example.com', 'node2.example.com' ],
+        'expected node list stored'
+    );
+}
+
+##############################
+# Response parsers
+sub response_cap : Test(3) {
+    my $p = shift->{protocol};
+
+    my $cap_response = <<'END_CAP';
+cap multigraph dirtyconfig
+END_CAP
+
+    ok( $p,                                     'protocol established' );
+    ok( $p->_parse_response_cap($cap_response), 'parse capabilities' );
+    is_deeply(
+        $p->{state}->{capabilities},
+        [ 'multigraph', 'dirtyconfig' ],
+        'expected capability list stored'
+    );
 }
 
 ##############################
@@ -171,8 +210,7 @@ bar.example.com
 EOF
     ok( $p->parse_request('nodes'), 'parse request: nodes' );
     is( $s->{request}, 'nodes', 'check parser state for: nodes' );
-    ok( $p->parse_response($nodes_response),
-        'parse response for: nodes' );
+    ok( $p->parse_response($nodes_response), 'parse response for: nodes' );
     is_deeply(
         $s->{nodes},
         [ 'foo.example.com', 'bar.example.com' ],
